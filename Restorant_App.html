@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Restorant App</title>
+    <link rel="stylesheet" href="RestoApp.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <h1>Restaurant Web App</h1>
+
+  <h2>Add an Order</h2>
+  <div>
+    <label for="price">Price:</label>
+    <input type="number" id="price">
+  </div>
+  <div>
+    <label for="dish">Dish:</label>
+    <select id="dish">
+      <option value="Biryani">Biryani</option>
+      <option value="Fried Rice">Fried Rice</option>
+      <option value="Paneer">Paneer</option>
+      <option value="Pulav">Pulav</option>
+      <option value="Misal">Misal</option>
+    </select>
+  </div>
+  <div>
+    <label for="tableNo">Table No:</label>
+    <select id="tableNo">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+  </div>
+  <button onclick="addOrder()">Add Bill</button>
+
+  <h2>Orders</h2>
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>Price</th>
+        <th>Dish</th>
+        <th>Table No</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="orderBody"></tbody>
+  </table>
+
+
+
+
+
+
+
+
+  <script>
+
+
+
+
+ // Function to add an order
+ function addOrder() {
+      var price = document.getElementById("price").value;
+      var dish = document.getElementById("dish").value;
+      var tableNo = document.getElementById("tableNo").value;
+
+      // Create the order object
+      var order = {
+        price: price,
+        dish: dish,
+        tableNo: tableNo
+      };
+
+      // Make a POST request to create the order
+      axios.post("https://crudcrud.com/Dashboard/6ab531668e6d4df9af4a1e3469c8a3d0", order)
+        .then(response => {
+          // Add the order to the table
+          addOrderToTable(response.data);
+        })
+        .catch(error => console.log(error));
+
+      // Clear the input fields
+      document.getElementById("price").value = "";
+      document.getElementById("dish").value = "";
+      document.getElementById("tableNo").value = "";
+    }
+
+    // Function to delete an order
+    function deleteOrder(row, orderId) {
+      // Make a DELETE request to remove the order
+      axios.delete(`https://crudcrud.com/Dashboard/6ab531668e6d4df9af4a1e3469c8a3d0/${orderId}`)
+        .then(response => {
+          // Remove the order from the table
+          var i = row.parentNode.parentNode.rowIndex;
+          document.getElementById("orderTable").deleteRow(i);
+        })
+        .catch(error => console.log(error));
+    }
+
+    // Function to add an order to the table
+    function addOrderToTable(order) {
+      // Create a new row in the table
+      var table = document.getElementById("orderBody");
+      var newRow = table.insertRow();
+
+      // Insert cells into the new row
+      var cellPrice = newRow.insertCell(0);
+      var cellDish = newRow.insertCell(1);
+      var cellTableNo = newRow.insertCell(2);
+      var cellAction = newRow.insertCell(3);
+
+      // Set the cell values
+      cellPrice.innerHTML = order.price;
+      cellDish.innerHTML= order.dish;
+      cellTableNo.innerHTML = order.tableNo;
+      cellAction.innerHTML = '<button onclick="deleteOrder(this, \'' + order._id + '\')">Delete</button>';
+    }
+
+    // Function to load orders from the CRUDCrud API
+    function loadOrders() {
+      // Make a GET request to retrieve the orders
+      axios.get("https://crudcrud.com/Dashboard/6ab531668e6d4df9af4a1e3469c8a3d0")
+        .then(response => {
+          // Add each order to the table
+          response.data.forEach(order => {
+            addOrderToTable(order);
+          });
+        })
+        .catch(error => console.log(error));
+    }
+
+    // Load orders when the page loads
+    loadOrders();
+
+
+
+
+
+
+
+  </script>
+</body>
+</html>
