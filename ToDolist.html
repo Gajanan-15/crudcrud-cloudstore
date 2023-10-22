@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharpner's TodoList App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js">
+    <style>
+
+.container {
+  margin-bottom: 10px;
+}
+
+ul {
+  list-style: none;
+}
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <h1>ToDo List App</h1>
+  
+    <div class="container">
+      <input type="text" id="todoName" placeholder="ToDo Name">
+      <input type="text" id="description" placeholder="Description">
+      <button onclick="addItem()">Add Item</button>
+    </div>
+    
+    <ul id="todoList"></ul>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+<script>
+
+
+
+
+// Function to add a new item to the list
+function addItem() {
+  const todoName = document.getElementById("todoName").value;
+  const description = document.getElementById("description").value;
+
+  if (todoName.trim() === "") {
+    alert("Please enter a ToDo name.");
+    return;
+  }
+
+  const item = { todoName, description };
+
+  // Save the item to the remote API
+  saveItem(item)
+    .then((response) => {
+      const { _id } = response.data;
+
+      // Clear the input fields
+      document.getElementById("todoName").value = "";
+      document.getElementById("description").value = "";
+
+      // Add the item to the list
+      const listItem = document.createElement("li");
+      listItem.textContent = `${item.todoName}: ${item.description}`;
+
+      // Add a delete button
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", () => {
+        deleteItem(_id)
+          .then(() => {
+            listItem.remove();
+          })
+          .catch((error) => {
+            console.error("Error deleting item:", error);
+          });
+      });
+
+      listItem.appendChild(deleteButton);
+      document.getElementById("todoList").appendChild(listItem);
+    })
+    .catch((error) => {
+      console.error("Error saving item:", error);
+    });
+}
+
+// Function to save the item to the remote API
+function saveItem(item) {
+  const apiUrl = "https://crudcrud.com/Dashboard/fd44585714bd4314bf9480892f0762dd/todos"; 
+
+  return axios.post(apiUrl, item);
+}
+
+// Function to delete 
+function deleteItem(itemId) {
+  const apiUrl = `https://crudcrud.com/Dashboard/fd44585714bd4314bf9480892f0762dd/${itemId}`;
+
+  return axios.delete(apiUrl);
+}
+
+// Function to fetch 
+function fetchItems() {
+  const apiUrl = "https://crudcrud.com/Dashboard/fd44585714bd4314bf9480892f0762dd/todos"; 
+
+  return axios.get(apiUrl);
+}
+
+// Function to initialize the app by fetching and displaying the items
+function initializeApp() {
+  fetchItems()
+    .then((response) => {
+      const items = response.data;
+
+      items.forEach((item) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `${item.todoName}: ${item.description}`;
+
+        // Add a delete button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
+          deleteItem(item._id)
+            .then(() => {
+              listItem.remove();
+            })
+            .catch((error) => {
+              console.error("Error deleting item:", error);
+            });
+        });
+
+        listItem.appendChild(deleteButton);
+        document.getElementById("todoList").appendChild(listItem);
+      });
+    })
+    .catch((error) => {
+      console.error("Error fetching items:", error);
+    });
+}
+
+// Initialize the app
+initializeApp();
+
+
+
+
+
+
+</script>
+
+
+
+
+</body>
+</html>
